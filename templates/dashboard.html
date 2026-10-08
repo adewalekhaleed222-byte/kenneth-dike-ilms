@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Patron Dashboard — KDL{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+
+        <div>
+            <span class="eyebrow">PATRON DASHBOARD</span>
+
+            <h1 class="mt-2 mb-1">
+                Good day, {{ logged_in_user.name.split()[0] }}
+            </h1>
+
+            <p class="text-muted mb-0">
+                Manage your library activity and discover useful resources.
+            </p>
+        </div>
+
+        <a
+            class="btn btn-primary"
+            href="{{ url_for('catalogue') }}"
+        >
+            Search Catalogue
+        </a>
+
+    </div>
+
+
+    <!-- STATS -->
+    <div class="row g-3 mb-5">
+
+        <div class="col-md-4">
+
+            <div class="stat-card h-100">
+
+                <span>Active Loans</span>
+
+                <strong>
+                    {{ loans|length }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="stat-card h-100">
+
+                <span>Reservations</span>
+
+                <strong>
+                    {{ reservations|length }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="stat-card h-100">
+
+                <span>Department</span>
+
+                <strong class="fs-5">
+                    {{ logged_in_user.department }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RECOMMENDATIONS -->
+    <div class="section-heading">
+
+        <span class="eyebrow">
+            RECOMMENDED FOR YOU
+        </span>
+
+        <h2>
+            Because your interests matter
+        </h2>
+
+        <p class="text-muted">
+            Resources selected using your department and borrowing history.
+        </p>
+
+    </div>
+
+
+    <div class="row g-4 mt-1 mb-5">
+
+        {% for material in recommendations %}
+
+        <div class="col-md-6 col-lg-3">
+
+            <a
+                class="book-card text-decoration-none"
+                href="{{ url_for('material_detail', material_id=material.id) }}"
+            >
+
+                <div class="book-cover">
+                    {{ material.subject[:2].upper() }}
+                </div>
+
+
+                <div class="p-3">
+
+                    <h5>
+                        {{ material.title }}
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        {{ material.subject }}
+                    </p>
+
+                    <span class="small text-primary">
+                        View material →
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+        {% else %}
+
+        <div class="col-12">
+
+            <div class="empty-state">
+                <p class="text-muted mb-0">
+                    No recommendations available yet.
+                </p>
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- CURRENT LOANS -->
+    <div class="section-heading">
+
+        <span class="eyebrow">
+            CURRENT LOANS
+        </span>
+
+        <h2>
+            Your borrowed materials
+        </h2>
+
+        <p class="text-muted">
+            Keep track of due dates and outstanding fines.
+        </p>
+
+    </div>
+
+
+    <div class="card border-0 shadow-sm mt-3">
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th>Material</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Fine</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for loan in loans %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ loan.material.title }}
+                            </strong>
+
+                            <br>
+
+                            <small class="text-muted">
+                                {{ loan.material.author }}
+                            </small>
+                        </td>
+
+
+                        <td>
+                            {{ loan.due_at.strftime("%d %b %Y") }}
+                        </td>
+
+
+                        <td>
+
+                            {% if loan.status == "Active" %}
+
+                                {% if loan.due_at < now %}
+
+                                    <span class="badge text-bg-danger">
+                                        Overdue
+                                    </span>
+
+                                {% elif (loan.due_at - now).days < 3 %}
+
+                                    <span class="badge text-bg-warning">
+                                        Due Soon
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-success">
+                                        Active
+                                    </span>
+
+                                {% endif %}
+
+                            {% elif loan.status == "Returned" %}
+
+                                <span class="badge text-bg-success">
+                                    Returned
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge text-bg-secondary">
+                                    {{ loan.status }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if overdue_fine(loan.due_at) > 0 %}
+
+                                <span class="text-danger fw-semibold">
+                                    ₦{{ overdue_fine(loan.due_at) }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    ₦0
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="text-center text-muted py-5"
+                        >
+                            No active loans.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

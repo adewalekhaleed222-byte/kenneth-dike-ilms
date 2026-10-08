@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard — KDL{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <span class="eyebrow">SYSTEM ADMINISTRATION</span>
+
+    <h1 class="mt-2">Admin Dashboard</h1>
+
+    <p class="text-muted">
+        High-level view of the intelligent library management system.
+    </p>
+
+
+    <!-- =========================
+         SYSTEM OVERVIEW
+    ========================== -->
+
+    <div class="row g-3 mt-4">
+
+        <div class="col-md-3">
+            <div class="stat-card h-100">
+                <span>Total Reservations</span>
+                <strong>{{ stats.reservations }}</strong>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card h-100">
+                <span>Pending Reservations</span>
+                <strong>{{ stats.pending_reservations }}</strong>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card h-100">
+                <span>Registered Patrons</span>
+                <strong>{{ stats.patrons }}</strong>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card h-100">
+                <span>Active Loans</span>
+                <strong>{{ stats.active_loans }}</strong>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         ANALYTICS
+    ========================== -->
+
+    <div id="analytics" class="card border-0 shadow-sm mt-4">
+
+        <div class="card-body">
+
+            <span class="eyebrow">ANALYTICS</span>
+
+            <h3 class="mt-2 mb-1">Loans by Subject</h3>
+
+            <p class="text-muted mb-0">
+                Overview of borrowing activity across subjects.
+            </p>
+
+
+            <div class="mt-4">
+
+                {% for subject, count in loan_subjects %}
+
+                <div class="mb-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+
+                        <span class="fw-semibold">
+                            {{ subject }}
+                        </span>
+
+                        <span class="text-muted small">
+                            {{ count }} loan{% if count != 1 %}s{% endif %}
+                        </span>
+
+                    </div>
+
+
+                    <div class="analytics-bar">
+
+                        <div
+                            class="analytics-bar-fill"
+                            style="width: {{ (count / max_loan_count * 100)|round(1) }}%;">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% else %}
+
+                <div class="text-center text-muted py-5">
+                    No borrowing data available yet.
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         CATALOGUE MANAGEMENT
+    ========================== -->
+
+    <div class="card border-0 shadow-sm mt-4">
+
+        <div class="card-body p-0">
+
+            <div class="p-4 border-bottom">
+
+                <div class="d-flex justify-content-between align-items-center gap-3">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            CATALOGUE MANAGEMENT
+                        </span>
+
+                        <h3 class="mt-2 mb-1">
+                            Materials
+                        </h3>
+
+                        <p class="text-muted mb-0">
+                            Manage materials available in the library catalogue.
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('add_material') }}"
+                        class="btn btn-primary"
+                    >
+                        Add Material
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Subject</th>
+                            <th>Branch</th>
+                            <th>Availability</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for material in materials %}
+
+                        <tr>
+
+                            <td>
+                                <strong>{{ material.title }}</strong>
+                            </td>
+
+                            <td>
+                                {{ material.author }}
+                            </td>
+
+                            <td>
+                                {{ material.subject }}
+                            </td>
+
+                            <td>
+                                {{ material.branch.name }}
+                            </td>
+
+                            <td>
+
+                                {% if material.copies_available > 0 %}
+
+                                    <span class="badge text-bg-success">
+                                        {{ material.copies_available }}
+                                        / {{ material.copies_total }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-danger">
+                                        Unavailable
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="d-flex gap-2 flex-wrap">
+
+                                    <a
+                                        href="{{ url_for('material_detail', material_id=material.id) }}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        View
+                                    </a>
+
+                                    <a
+                                        href="{{ url_for('edit_material', material_id=material.id) }}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    <form
+                                        action="{{ url_for('delete_material', material_id=material.id) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this material?');"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                        {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="text-center text-muted py-5"
+                            >
+                                No materials found.
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         PATRON MANAGEMENT
+    ========================== -->
+
+    <div id="patrons" class="card border-0 shadow-sm mt-4">
+
+        <div class="card-body p-0">
+
+            <div class="p-4 border-bottom">
+
+                <span class="eyebrow">
+                    USER MANAGEMENT
+                </span>
+
+                <h3 class="mt-2 mb-1">
+                    Patrons
+                </h3>
+
+                <p class="text-muted mb-0">
+                    View registered library patrons and their accounts.
+                </p>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>User Code</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for patron in patrons %}
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    {{ patron.user_code }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ patron.name }}
+                            </td>
+
+                            <td>
+                                {{ patron.email }}
+                            </td>
+
+                            <td>
+                                {{ patron.department }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{{ url_for('patron_detail', patron_id=patron.id) }}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    View
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+
+                        {% else %}
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="text-center text-muted py-5"
+                            >
+                                No registered patrons found.
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         QUICK ACCESS
+    ========================== -->
+
+    <div class="row g-4 mt-3">
+
+        <div class="col-md-4">
+
+            <div class="admin-card h-100">
+
+                <span>CATALOGUE</span>
+
+                <h4>Manage materials</h4>
+
+                <p>
+                    Add, update and review catalogue records.
+                </p>
+
+                <a href="{{ url_for('catalogue') }}">
+                    Open catalogue →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="admin-card h-100">
+
+                <span>USERS</span>
+
+                <h4>Patron management</h4>
+
+                <p>
+                    Review patron accounts and membership information.
+                </p>
+
+                <a href="#patrons">
+                    View patrons →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="admin-card h-100">
+
+                <span>REPORTS</span>
+
+                <h4>Library analytics</h4>
+
+                <p>
+                    Monitor catalogue activity, loans and recommendations.
+                </p>
+
+                <a href="#analytics">
+                    View analytics →
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

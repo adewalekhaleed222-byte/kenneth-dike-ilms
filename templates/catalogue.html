@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Catalogue — KDL{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+    <div class="section-heading">
+
+        <span class="eyebrow">
+            DISCOVERY
+        </span>
+
+        <h1>
+            Catalogue
+        </h1>
+
+        <p>
+            Search by title, author, subject or apply branch filters.
+        </p>
+
+    </div>
+
+
+    <!-- SEARCH & FILTERS -->
+    <form
+        class="search-panel mt-4"
+        method="get"
+    >
+
+        <div class="row g-2">
+
+            <div class="col-lg-5">
+
+                <input
+                    class="form-control form-control-lg"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Search books, authors or subjects"
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="col-lg-3">
+
+                <select
+                    class="form-select form-select-lg"
+                    name="subject"
+                >
+
+                    <option value="">
+                        All subjects
+                    </option>
+
+                    {% for s in subjects %}
+
+                    <option
+                        value="{{ s }}"
+                        {% if subject == s %}selected{% endif %}
+                    >
+                        {{ s }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="col-lg-3">
+
+                <select
+                    class="form-select form-select-lg"
+                    name="branch_id"
+                >
+
+                    <option value="">
+                        All branches
+                    </option>
+
+                    {% for b in branches %}
+
+                    <option
+                        value="{{ b.id }}"
+                        {% if branch_id == b.id %}selected{% endif %}
+                    >
+                        {{ b.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="col-lg-1">
+
+                <button
+                    class="btn btn-primary btn-lg w-100"
+                    type="submit"
+                >
+                    Go
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+
+    <!-- RESULTS SUMMARY -->
+    <div class="catalogue-results-header">
+
+        <div>
+
+            <h5 class="mb-1">
+                {{ materials|length }} result{% if materials|length != 1 %}s{% endif %}
+            </h5>
+
+            {% if q or subject or branch_id %}
+
+            <small class="text-muted">
+                Showing filtered catalogue results.
+            </small>
+
+            {% else %}
+
+            <small class="text-muted">
+                Showing all available catalogue materials.
+            </small>
+
+            {% endif %}
+
+        </div>
+
+
+        <span class="text-muted small">
+            Availability shown per branch
+        </span>
+
+    </div>
+
+
+    <!-- MATERIAL CARDS -->
+    <div class="row g-4">
+
+        {% for material in materials %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="catalogue-card h-100">
+
+                <div class="book-cover small-cover">
+    {% if material.cover_url %}
+        <img
+            src="{{ material.cover_url }}"
+            alt="{{ material.title }} book cover"
+            loading="lazy"
+        >
+    {% else %}
+        {{ material.subject[:2].upper() }}
+    {% endif %}
+</div>
+
+                <div class="p-4">
+
+                    <span class="badge rounded-pill text-bg-light mb-2">
+                        {{ material.subject }}
+                    </span>
+
+
+                    <h4>
+                        {{ material.title }}
+                    </h4>
+
+
+                    <p class="text-muted mb-3">
+                        {{ material.author }}
+                    </p>
+
+
+                    {% if material.copies_available > 0 %}
+
+                    <div class="availability available">
+                        <span class="availability-dot"></span>
+                        {{ material.copies_available }}
+                        of
+                        {{ material.copies_total }}
+                        copies available
+                    </div>
+
+                    {% else %}
+
+                    <div class="availability unavailable">
+                        <span class="availability-dot"></span>
+                        Currently unavailable
+                    </div>
+
+                    {% endif %}
+
+
+                    <small class="text-muted d-block mt-2">
+                        {{ material.branch.name }}
+                    </small>
+
+
+                    <a
+                        class="btn btn-outline-primary mt-3 w-100"
+                        href="{{ url_for('material_detail', material_id=material.id) }}"
+                    >
+
+                        {% if material.copies_available > 0 %}
+
+                            View & Reserve
+
+                        {% else %}
+
+                            View Material
+
+                        {% endif %}
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="col-12">
+
+            <div class="empty-state">
+
+                <h5>
+                    No materials found
+                </h5>
+
+                <p class="text-muted mb-0">
+                    Try a different search term, subject or branch.
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

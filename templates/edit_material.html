@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <span class="eyebrow">CATALOGUE MANAGEMENT</span>
+        <h1 class="mt-2">Edit Material</h1>
+        <p class="text-muted">
+            Update the details of this library material.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <form method="POST">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Title</label>
+
+                        <input
+                            type="text"
+                            name="title"
+                            class="form-control"
+                            value="{{ material.title }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Author</label>
+
+                        <input
+                            type="text"
+                            name="author"
+                            class="form-control"
+                            value="{{ material.author }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Subject</label>
+
+                        <input
+                            type="text"
+                            name="subject"
+                            class="form-control"
+                            value="{{ material.subject }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Branch</label>
+
+                        <select
+                            name="branch_id"
+                            class="form-select"
+                            required
+                        >
+
+                            {% for branch in branches %}
+
+                                <option
+                                    value="{{ branch.id }}"
+                                    {% if branch.id == material.branch_id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ branch.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Total Copies</label>
+
+                        <input
+                            type="number"
+                            name="copies_total"
+                            class="form-control"
+                            min="1"
+                            value="{{ material.copies_total }}"
+                            required
+                        >
+
+                        <small class="text-muted">
+                            Currently available:
+                            {{ material.copies_available }}
+                        </small>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="5"
+                        >{{ material.description }}</textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Save Changes
+                    </button>
+
+                    <a
+                        href="{{ url_for('admin_dashboard') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

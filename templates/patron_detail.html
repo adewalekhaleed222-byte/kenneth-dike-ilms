@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- Patron Information -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="mb-4">
+                <span class="eyebrow">PATRON MANAGEMENT</span>
+                <h2 class="mt-2 mb-1">{{ patron.name }}</h2>
+                <p class="text-muted mb-0">
+                    Patron account details and library activity.
+                </p>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <small class="text-muted">User Code</small>
+                    <div class="fw-semibold">
+                        {{ patron.user_code }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted">Email</small>
+                    <div class="fw-semibold">
+                        {{ patron.email }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted">Department</small>
+                    <div class="fw-semibold">
+                        {{ patron.department }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <small class="text-muted">Role</small>
+                    <div class="fw-semibold">
+                        {{ patron.role }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Active Loans -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <span class="eyebrow">CURRENT ACTIVITY</span>
+                <h3 class="mt-2 mb-0">Active Loans</h3>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Borrowed</th>
+                            <th>Due</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for loan in active_loans %}
+
+                        <tr>
+                            <td>
+                                <strong>{{ loan.material.title }}</strong>
+                            </td>
+
+                            <td>
+                                {{ loan.borrowed_at.strftime("%d %b %Y, %I:%M %p") }}
+                            </td>
+
+                            <td>
+                                {{ loan.due_at.strftime("%d %b %Y, %I:%M %p") }}
+                            </td>
+
+                            <td>
+                                <span class="badge text-bg-warning">
+                                    {{ loan.status }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="4"
+                                class="text-center text-muted py-4">
+                                No active loans.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Loan History -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <span class="eyebrow">LOAN HISTORY</span>
+                <h3 class="mt-2 mb-0">Returned Materials</h3>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Borrowed</th>
+                            <th>Returned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for loan in loan_history %}
+
+                        <tr>
+                            <td>
+                                <strong>{{ loan.material.title }}</strong>
+                            </td>
+
+                            <td>
+                                {{ loan.borrowed_at.strftime("%d %b %Y, %I:%M %p") }}
+                            </td>
+
+                            <td>
+                                {% if loan.returned_at %}
+                                    {{ loan.returned_at.strftime("%d %b %Y, %I:%M %p") }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <span class="badge text-bg-success">
+                                    {{ loan.status }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="4"
+                                class="text-center text-muted py-4">
+                                No loan history.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Reservations -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <span class="eyebrow">RESERVATIONS</span>
+                <h3 class="mt-2 mb-0">Reservation History</h3>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Requested</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for reservation in reservations %}
+
+                        <tr>
+                            <td>
+                                <strong>
+                                    {{ reservation.material.title }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ reservation.requested_at.strftime("%d %b %Y, %I:%M %p") }}
+                            </td>
+
+                            <td>
+                                {% if reservation.status == "Pending Verification" %}
+                                    <span class="badge text-bg-warning">
+                                        {{ reservation.status }}
+                                    </span>
+                                {% elif reservation.status == "Fulfilled" %}
+                                    <span class="badge text-bg-success">
+                                        {{ reservation.status }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">
+                                        {{ reservation.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="3"
+                                class="text-center text-muted py-4">
+                                No reservations found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Back Button -->
+    <a href="{{ url_for('admin_dashboard') }}"
+       class="btn btn-outline-secondary">
+        ← Back to Admin Dashboard
+    </a>
+
+</div>
+
+{% endblock %}

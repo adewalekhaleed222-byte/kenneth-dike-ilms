@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}{{ material.title }} — KDL{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <a
+        href="{{ url_for('catalogue') }}"
+        class="back-link text-decoration-none"
+    >
+        ← Back to catalogue
+    </a>
+
+
+    <div class="row g-5 mt-3 align-items-start">
+
+        <!-- RESOURCE COVER -->
+        <div class="col-md-4">
+
+            <div class="detail-cover">
+    {% if material.cover_url %}
+        <img
+            src="{{ material.cover_url }}"
+            alt="{{ material.title }} book cover"
+        >
+    {% else %}
+        {{ material.subject[:2].upper() }}
+    {% endif %}
+</div>
+
+        </div>
+
+
+        <!-- RESOURCE INFORMATION -->
+        <div class="col-md-8">
+
+            <span class="eyebrow">
+                {{ material.subject }}
+            </span>
+
+
+            <h1 class="mt-2 mb-2">
+                {{ material.title }}
+            </h1>
+
+
+            <p class="lead text-muted mb-0">
+                {{ material.author }}
+            </p>
+
+
+            <div class="resource-description mt-4">
+
+                <h5>
+                    About this material
+                </h5>
+
+                <p class="text-muted mb-0">
+                    {{ material.description or "No description available for this material." }}
+                </p>
+
+            </div>
+
+
+            <!-- RESOURCE INFORMATION -->
+            <div class="info-grid mt-4">
+
+                <div>
+                    <small>Branch</small>
+                    <strong>{{ material.branch.name }}</strong>
+                </div>
+
+
+                <div>
+                    <small>Location</small>
+                    <strong>{{ material.branch.location }}</strong>
+                </div>
+
+
+                <div>
+                    <small>Availability</small>
+
+                    {% if material.copies_available > 0 %}
+
+                        <strong class="text-success">
+                            {{ material.copies_available }}
+                            / {{ material.copies_total }}
+                        </strong>
+
+                    {% else %}
+
+                        <strong class="text-danger">
+                            Unavailable
+                        </strong>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- RESERVATION ACTION -->
+            {% if logged_in_user and logged_in_user.role == "patron" %}
+
+                <form
+                    method="post"
+                    action="{{ url_for('reserve', material_id=material.id) }}"
+                    class="mt-4"
+                >
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg px-4"
+                        {% if material.copies_available < 1 %}disabled{% endif %}
+                    >
+
+                        {% if material.copies_available > 0 %}
+
+                            Reserve Material
+
+                        {% else %}
+
+                            Currently Unavailable
+
+                        {% endif %}
+
+                    </button>
+
+                </form>
+
+
+            {% elif not logged_in_user %}
+
+                <a
+                    href="{{ url_for('login', next=request.path) }}"
+                    class="btn btn-primary btn-lg mt-4"
+                >
+                    Sign in to reserve
+                </a>
+
+            {% endif %}
+
+
+            {% if material.copies_available > 0 %}
+
+                <div class="availability available mt-3">
+                    <span class="availability-dot"></span>
+                    {{ material.copies_available }}
+                    {{ "copy" if material.copies_available == 1 else "copies" }}
+                    currently available
+                </div>
+
+            {% else %}
+
+                <div class="availability unavailable mt-3">
+                    <span class="availability-dot"></span>
+                    No copies are currently available
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+{% if recommendations %}
+<section class="container pb-5 mt-5">
+    <div class="section-heading mb-4">
+        <span class="eyebrow">SMART DISCOVERY</span>
+        <h2>You may also like</h2>
+        <p class="text-muted">
+            Recommended based on the content of this material.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        {% for recommendation in recommendations %}
+        <div class="col-md-6 col-lg-3">
+            <a
+                class="book-card text-decoration-none"
+                href="{{ url_for('material_detail', material_id=recommendation.id) }}"
+            >
+                <div class="book-cover">
+                    {% if recommendation.cover_url %}
+                        <img
+                            src="{{ recommendation.cover_url }}"
+                            alt="{{ recommendation.title }} book cover"
+                            loading="lazy"
+                        >
+                    {% else %}
+                        {{ recommendation.subject[:2].upper() }}
+                    {% endif %}
+                </div>
+
+                <div class="p-3">
+                    <span class="small text-primary">
+                        {{ recommendation.subject }}
+                    </span>
+
+                    <h5 class="mt-1">
+                        {{ recommendation.title }}
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        {{ recommendation.author }}
+                    </p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}KDL — Intelligent Library Management{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container py-5">
+    <div class="row align-items-center min-vh-75">
+      <div class="col-lg-7">
+    <div class="hero-ribbon">
+        <span class="hero-ribbon-dot"></span>
+        <span>INTELLIGENT LIBRARY MANAGEMENT SYSTEM</span>
+    </div>
+
+    <span class="eyebrow d-block mt-4">
+        UNIVERSITY OF IBADAN · KENNETH DIKE LIBRARY
+    </span>
+
+    <h1 class="display-3 fw-bold mt-3">
+        Discover knowledge.<br>
+        <span class="text-accent">Intelligently.</span>
+    </h1>
+
+    <p class="lead text-secondary mt-4 hero-description">
+        Discover academic resources, check availability, make reservations,
+        manage borrowing activity and receive personalised recommendations
+        through one intelligent library platform.
+    </p>
+
+    <div class="d-flex gap-3 mt-4 flex-wrap">
+        <a class="btn btn-primary btn-lg px-4"
+           href="{{ url_for('catalogue') }}">
+            Explore Catalogue
+        </a>
+
+        <a class="btn btn-outline-dark btn-lg px-4"
+           href="{{ url_for('login') }}">
+            Sign in
+        </a>
+    </div>
+
+    <div class="hero-meta mt-4">
+        <div>
+            <strong>Smart</strong>
+            <span>Discovery</span>
+        </div>
+
+        <div>
+            <strong>Easy</strong>
+            <span>Reservations</span>
+        </div>
+
+        <div>
+            <strong>Personalised</strong>
+            <span>Recommendations</span>
+        </div>
+    </div>
+</div>
+      <div class="col-lg-5 mt-5 mt-lg-0">
+  <div class="hero-card shadow-lg">
+    <div>
+  <div class="small text-uppercase text-muted fw-semibold">
+    Smart Discovery
+  </div>
+  <h3 class="mt-2 mb-0">Find your next resource.</h3>
+</div>
+    <p class="text-muted mt-3 mb-0">
+      Search books, authors and subjects across the library catalogue.
+    </p>
+    <form class="search-preview mt-4"
+      action="{{ url_for('catalogue') }}"
+      method="GET">
+
+  <input
+    id="homeSearch"
+    type="text"
+    name="q"
+    placeholder="Search books, authors, subjects..."
+    aria-label="Search catalogue"
+    autocomplete="off"
+  >
+
+  <button
+    class="search-button"
+    type="submit"
+    aria-label="Search catalogue">
+    ⌕
+  </button>
+
+</form>
+
+<div id="homeSearchResults" class="live-search-results"></div>
+    
+</div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row g-4">
+
+    <div class="col-md-4">
+      <div class="feature-card h-100">
+        <div class="feature-icon">01</div>
+        <h4>Smart Catalogue</h4>
+        <p>
+          Search materials and check availability across library locations.
+        </p>
+        <span class="feature-link">Explore catalogue →</span>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="feature-card h-100">
+        <div class="feature-icon">02</div>
+        <h4>Reservations</h4>
+        <p>
+          Reserve available materials and track your library requests.
+        </p>
+        <span class="feature-link">Reserve materials →</span>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="feature-card h-100">
+        <div class="feature-icon">03</div>
+        <h4>Recommendations</h4>
+        <p>
+          Discover useful materials based on your profile and borrowing history.
+        </p>
+        <span class="feature-link">Discover resources →</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="container pb-5">
+ <div class="section-heading d-flex justify-content-between align-items-end flex-wrap gap-3">
+  <div>
+    <span class="eyebrow">FEATURED MATERIALS</span>
+    <h2>Explore the collection</h2>
+    <p class="text-muted mb-0">
+      Browse selected resources from the library catalogue.
+    </p>
+  </div>
+
+  <a href="{{ url_for('catalogue') }}" class="btn btn-outline-primary">
+    View all materials →
+  </a>
+</div>
+  <div class="row g-4 mt-1">
+    {% for material in featured %}
+<div class="col-md-6 col-lg-3">
+    <a class="book-card text-decoration-none"
+       href="{{ url_for('material_detail', material_id=material.id) }}">
+
+        <div class="book-cover">
+    {% if material.cover_url %}
+        <img
+            src="{{ material.cover_url }}"
+            alt="{{ material.title }} book cover"
+            loading="lazy"
+        >
+    {% else %}
+        {{ material.subject[:2].upper() }}
+    {% endif %}
+</div>
+
+        <div class="p-3">
+            <h5>{{ material.title }}</h5>
+            <p class="text-muted mb-1">{{ material.author }}</p>
+
+            <span class="small text-primary">
+                View & Reserve →
+            </span>
+        </div>
+
+    </a>
+</div>
+{% endfor %}
+  </div>
+</section>
+{% endblock %}

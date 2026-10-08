@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}KDL Intelligent Library{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark kdl-nav sticky-top">
+  <div class="container">
+
+    <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+      <span class="brand-mark">K</span> KENNETH DIKE LIBRARY
+    </a>
+
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
+        <!-- Catalogue -->
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('catalogue') }}">
+            Catalogue
+          </a>
+        </li>
+
+        {% if logged_in_user %}
+
+          <!-- Dashboard -->
+<li class="nav-item">
+  {% if logged_in_user.role == "officer" %}
+    <a class="nav-link" href="{{ url_for('officer_dashboard') }}">
+      Circulation Desk
+    </a>
+
+  {% elif logged_in_user.role == "admin" %}
+    <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+      Admin Dashboard
+    </a>
+
+  {% else %}
+    <a class="nav-link" href="{{ url_for('dashboard') }}">
+      Dashboard
+    </a>
+  {% endif %}
+</li>
+
+          <!-- Sign out -->
+          <li class="nav-item">
+            <a class="btn btn-light btn-sm px-3"
+               href="{{ url_for('logout') }}">
+              Sign out
+            </a>
+          </li>
+
+        {% else %}
+
+          <!-- Sign in -->
+          <li class="nav-item">
+            <a class="btn btn-light btn-sm px-3"
+               href="{{ url_for('login') }}">
+              Sign in
+            </a>
+          </li>
+
+        {% endif %}
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container pt-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} shadow-sm border-0">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer class="footer mt-5">
+  <div class="container py-4 d-flex flex-column flex-md-row justify-content-between gap-2">
+    <span>Intelligent Library Management System · CSC 302 · Group A10</span>
+    <span>Academic prototype — simulated data</span>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
